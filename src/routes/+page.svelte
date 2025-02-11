@@ -86,17 +86,69 @@
 </script>
 
 <div class="flex flex-col gap-28">
-	<h1
-		class="text-center text-5xl font-bold"
-		data-gramm="false"
-		spellcheck="false"
-		data-ld-active="false"
-		contenteditable
-		bind:innerText={store.title}
-	></h1>
-	{#each store.groups as group}
+	<div class="flex items-center justify-between">
+		<h1
+			class="text-5xl font-bold"
+			data-gramm="false"
+			spellcheck="false"
+			data-ld-active="false"
+			contenteditable
+			bind:innerText={store.title}
+		></h1>
+		<div class="flex flex-col items-end gap-2 print:hidden">
+			<button
+				class="button bg-indigo-500 text-white hover:bg-indigo-600"
+				onclick={() => window.print()}
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="24"
+					height="24"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					class="size-4"
+					><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
+						d="M14 3v4a1 1 0 0 0 1 1h4"
+					/><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" /><path
+						d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6"
+					/><path d="M17 18h2" /><path d="M20 15h-3v6" /><path
+						d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z"
+					/></svg
+				>
+				Imprimer</button
+			>
+			<button
+				onclick={() => (store = defaultStore())}
+				class="button border border-red-400 bg-white text-red-500 hover:border-red-600 hover:text-red-700"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="24"
+					height="24"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					class="size-4"
+					><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 7l16 0" /><path
+						d="M10 11l0 6"
+					/><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path
+						d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"
+					/></svg
+				>
+				Réinitialiser
+			</button>
+		</div>
+	</div>
+	{#each store.groups as group, groupIdx}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div class={{ 'print:hidden': !group.members.length }}>
+		<div class={[{ 'break-inside-avoid': groupIdx }, { 'print:hidden': !group.members.length }]}>
 			<div class="flex w-full items-center justify-between border-b border-gray-700">
 				<h2
 					class="text-3xl font-bold"
@@ -232,7 +284,7 @@
 				<div class="flex flex-wrap justify-start gap-6">
 					{#each group.members as member, memberIdx}
 						<div
-							class="group relative w-42 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+							class="group relative w-42 break-inside-avoid rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
 						>
 							<div
 								class="absolute inset-0 hidden h-40 bg-gray-300/50 group-hover:block print:hidden"
@@ -244,13 +296,13 @@
 								❌</button
 							>
 							<img
-								class="rounded-t-lg"
+								class="h-40 w-full rounded-t-lg object-cover"
 								src={typeof member.image === 'string'
 									? member.image
 									: URL.createObjectURL(member.image)}
 								alt={member.name}
 							/>
-							<div class="flex items-center justify-center gap-2 p-3">
+							<div class="p-3">
 								<h3
 									contenteditable
 									data-gramm="false"

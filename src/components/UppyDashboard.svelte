@@ -18,7 +18,10 @@
 	let uppy: Uppy
 
 	onMount(() => {
-		uppy = new Uppy({ locale, restrictions: { allowedFileTypes: ['image/*'] } })
+		uppy = new Uppy({
+			locale,
+			restrictions: { allowedFileTypes: ['image/*'] },
+		})
 			.use(ImageEditor, {
 				actions: {
 					cropSquare: false,
