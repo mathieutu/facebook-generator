@@ -1,8 +1,9 @@
 <script lang="ts">
-	import * as localforage from 'localforage'
 	import type { UploadResult } from '@uppy/core/src/Uppy'
 	import UppyDashboard from '../components/UppyDashboard.svelte'
 	import JSZip from 'jszip'
+	import { ucFirst } from '$lib/strings.js'
+	import localforage from 'localforage'
 
 	type Member = {
 		name: string
@@ -15,38 +16,48 @@
 		members: Member[]
 	}
 
-	const emptyGroups = (): Group[] => [
-		{ name: 'Stagiaires', members: [] },
-		{ name: 'Encadrants', members: [] },
-	]
+	type Store = {
+		title: string
+		groups: Group[]
+	}
 
-	let groups = $state<Group[]>(emptyGroups())
+	const defaultStore = (): Store => ({
+		title: 'Trombinoscope',
+		groups: [
+			{ name: 'Stagiaires', members: [] },
+			{ name: 'Encadrants', members: [] },
+		],
+	})
 
-	localforage.getItem<Group[]>('groups', (err, value) => {
+	let store = $state<Store>(defaultStore())
+
+	localforage.getItem<Store>('store', (err, value) => {
 		if (err) {
 			console.error(err)
 			return
 		}
 
-		groups = value ?? groups
+		if (value) {
+			store = { ...store, ...value }
+		}
 	})
 
 	$effect(() => {
-		localforage.setItem('groups', $state.snapshot(groups))
+		localforage.setItem('store', $state.snapshot(store))
 	})
 
 	let showUploads = $state(false)
 
-	const onUpload = (groupIdx: keyof Group[]) => (result: UploadResult<any, any>) => {
+	const onUpload = (group: Group) => (result: UploadResult<any, any>) => {
 		if (!result.successful) {
 			console.error({ result })
 
 			throw new Error('Error uploading files!')
 		}
 
-		;(groups[groupIdx] as Group).members.push(
+		group.members.push(
 			...result.successful.map((file) => ({
-				name: file.name?.split('.').slice(0, -1).join('.') ?? '',
+				name: ucFirst(file.name?.split('.').slice(0, -1).join('.') ?? ''),
 				image: file.data as File,
 			}))
 		)
@@ -75,11 +86,26 @@
 </script>
 
 <div class="flex flex-col gap-28">
-	{#each groups as group, groupIdx}
+	<h1
+		class="text-center text-5xl font-bold"
+		data-gramm="false"
+		spellcheck="false"
+		data-ld-active="false"
+		contenteditable
+		bind:innerText={store.title}
+	></h1>
+	{#each store.groups as group}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div class={{ 'print:hidden': !group.members.length }}>
 			<div class="flex w-full items-center justify-between border-b border-gray-700">
-				<h2 class="text-3xl font-bold" contenteditable bind:innerText={group.name}></h2>
+				<h2
+					class="text-3xl font-bold"
+					data-gramm="false"
+					spellcheck="false"
+					data-ld-active="false"
+					contenteditable
+					bind:innerText={group.name}
+				></h2>
 				<div class="flex gap-2 print:hidden">
 					{#if group.members.length}
 						<button
@@ -227,6 +253,9 @@
 							<div class="flex items-center justify-center gap-2 p-3">
 								<h3
 									contenteditable
+									data-gramm="false"
+									spellcheck="false"
+									data-ld-active="false"
 									class="text-center text-xl font-bold tracking-tight text-wrap break-words text-gray-900 decoration-dotted group-hover:underline"
 									bind:textContent={member.name}
 								></h3>
@@ -239,7 +268,7 @@
 						'absolute inset-0 h-full opacity-98 print:hidden',
 						showUploads || !group.members.length ? 'block' : 'hidden',
 					]}
-					onUploaded={onUpload(groupIdx)}
+					onUploaded={onUpload(group)}
 					onCancel={() => (showUploads = false)}
 				></UppyDashboard>
 			</div>
