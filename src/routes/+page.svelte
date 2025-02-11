@@ -284,7 +284,7 @@
 				<div class="flex flex-wrap justify-start gap-6">
 					{#each group.members as member, memberIdx}
 						<div
-							class="group relative w-42 break-inside-avoid rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+							class="group relative w-42 break-inside-avoid rounded-lg border border-gray-200 bg-white not-print:shadow-sm dark:border-gray-700 dark:bg-gray-800"
 						>
 							<div
 								class="absolute inset-0 hidden h-40 bg-gray-300/50 group-hover:block print:hidden"
