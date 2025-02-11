@@ -18,7 +18,7 @@
 	let uppy: Uppy
 
 	onMount(() => {
-		uppy = new Uppy({ locale })
+		uppy = new Uppy({ locale, restrictions: { allowedFileTypes: ['image/*'] } })
 			.use(ImageEditor, {
 				actions: {
 					cropSquare: false,
@@ -26,12 +26,12 @@
 					cropWidescreenVertical: false,
 				},
 				cropperOptions: {
-					viewMode: 3,
+					viewMode: 2,
 					aspectRatio: 1,
 				},
 			})
 			.use(Dashboard, {
-				height: 400,
+				height: 500,
 				autoOpen: 'imageEditor',
 				target: el,
 				inline: true,

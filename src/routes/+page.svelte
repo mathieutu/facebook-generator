@@ -2,10 +2,11 @@
 	import * as localforage from 'localforage'
 	import type { UploadResult } from '@uppy/core/src/Uppy'
 	import UppyDashboard from '../components/UppyDashboard.svelte'
+	import JSZip from 'jszip'
 
 	type Member = {
 		name: string
-		image: string | File | Blob
+		image: File
 		description?: string
 	}
 
@@ -46,18 +47,37 @@
 		;(groups[groupIdx] as Group).members.push(
 			...result.successful.map((file) => ({
 				name: file.name?.split('.').slice(0, -1).join('.') ?? '',
-				image: file.data,
+				image: file.data as File,
 			}))
 		)
 
 		showUploads = false
+	}
+
+	const downloadFiles = (group: Group) => () => {
+		const zip = new JSZip()
+
+		group.members.forEach((member) => {
+			zip.file(`${member.name}.${member.image.name.split('.').pop()}`, member.image)
+		})
+
+		zip.generateAsync({ type: 'blob' }).then((blob) => {
+			const url = URL.createObjectURL(blob)
+			const a = document.createElement('a')
+
+			a.download = `${group.name}.zip`
+			a.href = url
+			a.click()
+
+			URL.revokeObjectURL(url)
+		})
 	}
 </script>
 
 <div class="flex flex-col gap-28">
 	{#each groups as group, groupIdx}
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div>
+		<div class={{ 'print:hidden': !group.members.length }}>
 			<div class="flex w-full items-center justify-between border-b border-gray-700">
 				<h2 class="text-3xl font-bold" contenteditable bind:innerText={group.name}></h2>
 				<div class="flex gap-2 print:hidden">
@@ -65,7 +85,8 @@
 						<button
 							onclick={() => (showUploads = !showUploads)}
 							class={[
-								'inline-flex cursor-pointer items-center gap-1 rounded-lg bg-blue-500 px-2 py-1 text-center text-xs font-medium text-white hover:bg-blue-600 focus:outline-none',
+								'button',
+								'bg-blue-500 text-white hover:bg-blue-600',
 								{ 'bg-blue-800': showUploads },
 							]}
 						>
@@ -111,7 +132,7 @@
 					{/if}
 					<button
 						onclick={() => group.members.sort((a, b) => a.name.localeCompare(b.name))}
-						class="inline-flex cursor-pointer gap-1 rounded-lg border border-gray-400 bg-white px-2 py-1 text-center text-xs font-medium text-gray-500 hover:border-gray-800 hover:text-gray-900 focus:outline-none"
+						class="button border border-gray-400 bg-white text-gray-500 hover:border-gray-800 hover:text-gray-900"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -132,7 +153,7 @@
 					</button>
 					<button
 						onclick={() => (group.members = [])}
-						class="inline-flex cursor-pointer gap-1 rounded-lg border border-red-400 bg-white px-2 py-1 text-center text-xs font-medium text-red-500 hover:border-red-600 hover:text-red-700 focus:outline-none"
+						class="button border border-red-400 bg-white text-red-500 hover:border-red-600 hover:text-red-700"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -153,10 +174,33 @@
 						>
 						Vider
 					</button>
+					<button
+						class="button border border-green-500 bg-white text-green-600 hover:border-green-700 hover:text-green-900"
+						onclick={downloadFiles(group)}
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							class="size-4"
+							><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path
+								d="M12 21l-8 -4.5v-9l8 -4.5l8 4.5v4.5"
+							/><path d="M12 12l8 -4.5" /><path d="M12 12v9" /><path d="M12 12l-8 -4.5" /><path
+								d="M15 18h7"
+							/><path d="M19 15l3 3l-3 3" /></svg
+						>
+						Exporter
+					</button>
 				</div>
 			</div>
 			<div
-				class={['relative mt-4', { 'min-h-[400px]': showUploads || !group.members.length }]}
+				class={['relative mt-4', { 'min-h-[500px]': showUploads || !group.members.length }]}
 				ondragover={() => (showUploads = true)}
 			>
 				<div class="flex flex-wrap justify-start gap-6">

@@ -13,9 +13,6 @@
   margin: 10mm;
 }
 
-/*.uppy-Root {*/
-/*  @apply h-full -mx-[2px] w-[calc(100%+4px)];*/
-/*}*/
-/*.uppy-Dashboard {*/
-/*  @apply h-full w-full;*/
-/*}*/
+.button {
+  @apply inline-flex cursor-pointer gap-1 rounded-lg items-center px-2 py-1 text-xs font-medium focus:outline-none
+}
