@@ -41,5 +41,6 @@
 		"@uppy/locales": "^4.5.1",
 		"jszip": "^3.10.1",
 		"localforage": "^1.10.0"
-	}
+	},
+	"packageManager": "yarn@4.12.0"
 }
